@@ -1,6 +1,8 @@
+
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.Gyroscope;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -10,8 +12,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp
-public class Main extends LinearOpMode {
+@Autonomous
+public class Auto_Red_Wall extends LinearOpMode {
     private Gyroscope imu;
     private DcMotor motorLeft;
     private DcMotor motorRight;
@@ -36,21 +38,13 @@ public class Main extends LinearOpMode {
         glyphSwitch = hardwareMap.get(DigitalChannel.class, "glyphSwitch");
         armServo = hardwareMap.get(Servo.class, "armServo");
 
-        double driveLeftPower = 0;
-        double driveRightPower = 0;
-        double drivePower = 0;
-        double turnPower = 0;
-        double INTAKE_POWER = 1;
-        double REVERSE_INTAKE = -1;
-        double ARM_EXTENDED = 0.0;
-        double ARM_RETRACTED = 0.5;
-        boolean intakeOn = false;
+        int auto_Step = 0;
 
         motorLeft.setDirection(DcMotor.Direction.REVERSE);
         intakeLeft.setDirection(DcMotor.Direction.REVERSE);
         motorLeft.setMode(DcMotor.RunMode.RESET_ENCODERS);
         motorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        armServo.setPosition(ARM_RETRACTED);
+        // armServo.setPosition(ARM_RETRACTED);
 
 
         telemetry.addData("Status", "Initialized");
@@ -60,40 +54,25 @@ public class Main extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-
-            // Capture Controller Data
-            drivePower = -this.gamepad1.left_stick_y;
-            turnPower = -this.gamepad1.right_stick_x;
-
-            if (gamepad1.left_bumper){
-              intakeOn = true;
+            if (auto_Step == 0) {
+              // if (color Matches == Red){
+                // Turn Left
+                if(motorLeft.getCurrentPosition() < distanceTraveled(4)){
+                  motorLeft.setPower(0.5);
+                  motorRight.setPower(0.5);
+                }
+              // }
+            //   auto_Step++;
             }
 
-            if (gamepad1.right_bumper){
-              intakeOn = false;
-            }
-            if (gamepad1.x){
-              intakeLeft.setPower(REVERSE_INTAKE);
-              intakeRight.setPower(REVERSE_INTAKE);
-            }
-            if(intakeOn == true){
-                intakeLeft.setPower(INTAKE_POWER);
-                intakeRight.setPower(INTAKE_POWER);
-            } else {
-                intakeLeft.setPower(0);
-                intakeRight.setPower(0);
-            }
-            motorLeft.setPower(drivePower - turnPower);
-            motorRight.setPower(drivePower + turnPower);
-
+            motorLeft.setPower(0.0);
+            motorRight.setPower(0.0);
 
             telemetry.addData("Status", "Running");
-            telemetry.addData("Drive Power", drivePower);
-            telemetry.addData("Turn Power", turnPower);
-            telemetry.addData("Encoder Distance for 4m", distanceTraveled(5));
-            telemetry.addData("Encoder position", motorLeft.getCurrentPosition());
+            telemetry.addData("Encoder Position", motorLeft.getCurrentPosition());
+            telemetry.addData("Distance Traveling", distanceTraveled(4));
+            telemetry.addData("Step", auto_Step);
             telemetry.update();
-
         }
     }
 }

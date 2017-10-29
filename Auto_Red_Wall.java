@@ -43,7 +43,7 @@ public class Auto_Red_Wall extends LinearOpMode {
         motorLeft.setDirection(DcMotor.Direction.REVERSE);
         intakeLeft.setDirection(DcMotor.Direction.REVERSE);
         motorLeft.setMode(DcMotor.RunMode.RESET_ENCODERS);
-        motorLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
         // armServo.setPosition(ARM_RETRACTED);
 
 
@@ -54,19 +54,8 @@ public class Auto_Red_Wall extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            if (auto_Step == 0) {
-              // if (color Matches == Red){
-                // Turn Left
-                if(motorLeft.getCurrentPosition() < distanceTraveled(4)){
-                  motorLeft.setPower(0.5);
-                  motorRight.setPower(0.5);
-                }
-              // }
-            //   auto_Step++;
-            }
-
-            motorLeft.setPower(0.0);
-            motorRight.setPower(0.0);
+            // Power, Distance
+            DriveForwardDistance(0.5,4);
 
             telemetry.addData("Status", "Running");
             telemetry.addData("Encoder Position", motorLeft.getCurrentPosition());
@@ -74,5 +63,32 @@ public class Auto_Red_Wall extends LinearOpMode {
             telemetry.addData("Step", auto_Step);
             telemetry.update();
         }
+    }
+    public void DriveForwardDistance(double power,int distance){
+      motorLeft.setMode(DcMotor.RunMode.RESET_ENCODERS);
+      motorRight.setMode(DcMotor.RunMode.RESET_ENCODERS);
+
+      motorLeft.setTargetPosition(distance);
+      motorRight.setTargetPosition(distance);
+
+      motorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+      motorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+      DriveForward(power);
+
+      while(motorLeft.isBusy() && motorRight.isBusy()){
+        //wait until target is reached
+      }
+      StopDriving();
+      motorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+      motorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
+    }
+    public void DriveForward(double power){
+      motorLeft.setPower(power);
+      motorRight.setPower(power);
+    }
+    public void StopDriving(){
+      motorLeft.setPower(0);
+      motorRight.setPower(0);
     }
 }
